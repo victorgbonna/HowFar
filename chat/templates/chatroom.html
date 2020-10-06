@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat</title>
+</head>
+<body>
+    <h1> Welcome to Chat room {{ roomObj.roomname }}</h1>
+    <button id="load_msgs">Load Older Messages</button>
+    <div id="messages">
+        {%for message in messages%}
+            {%if message.msgsuser == current_user%}
+                <div style="color: blue;">{{message.msgsuser.username}}  [{{message.sent_at}}]:&nbsp; </i> {{message.msg}}<i></i></div>
+            {%else%}
+                <div><i>{{message.msgsuser.username}}  [{{message.sent_at}}]:&nbsp; </i> {{message.msg}}</div>
+                <!-- <h1>{{message.msgsuser}},  {{current_user}}</h1> -->
+            {%endif%}
+            
+        {%endfor%}
+    </div>
+    <form id="messageForm">
+        <input type="text" placeholder="Type something biko.." id="myMessage">
+        <button type="submit" id="sendButton">Send</button>
+    </form>
+    <a href="{{url_for('chatroom_info', room_id=roomObj.id)}}">See info</a>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('join_room',{
+            username: '{{username}}',
+            room: '{{room}}'
+        });
+    });
+    var messageInput= document.getElementById('myMessage');
+    
+    document.getElementById('messageForm').onsubmit = function(e){
+        e.preventDefault();
+        var message= messageInput.value.trim();
+        if (message.length) {
+            socket.emit('send_message',{
+                username: " {{username}} ",
+                room: "{{room}}",
+                message: message
+            })
+        }
+        messageInput.value='';
+        messageInput.focus(); 
+    }; 
+
+    let page=1;
+    document.getElementById('load_msgs').onclick=(e) =>{    
+        var ourRequest=new XMLHttpRequest();
+        ourRequest.open('GET', '/chat_room/{{roomObj.id}}/messages/?page='+page);
+        ourRequest.onload=function(){
+            var messages=JSON.parse(ourRequest.responseText);
+            messages.reverse().forEach(message => prepend_msg(message.msg, message.msgsuser.username, message.sent_at));
+        }
+        ourRequest.send()
+        page++;
+
+
+        // page+=1;
+        // fetch("/chat_room/{{roomObj.id}}/messages/?page="+page,{
+        //     method: "GET",
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     }  
+        // }).then(response=>{
+        //     response.json().then(messages => { 
+        //         messages.reverse().forEach(message => prepend_msg(message.msg, message.msgsuser.username, message.sent_at));                      
+        //     })
+        // })
+    };
+    function prepend_msg(message,username, sent_at){
+        const newElement=document.createElement('div');
+        newElement.innerHTML= '<i>'+username+' ['+sent_at+']:&nbsp; </i> '+message;
+        const msg_div=document.getElementById('messages');
+        msg_div.insertBefore(newElement,msg_div.firstChild)
+    }
+    //         var myInit={method: "GET",
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //         },
+    //             mode: 'cors',
+    //             cache: 'default'};
+    //         let myR=new Request("{{room}}/messages?page=2",myInit);
+    //         fetch(myR)
+    //             .then(function(resp){
+    //                 return resp.json()
+    //             })
+    //             .then(function(data){
+    //                 console.log(data);
+    //             });
+    // }
+        // fetch("/chat_room/{{room}}/messages?page")
+        //     .then(res => res.json())
+        //     .then(data => console.log('metheb'));
+
+
+        
+
+    socket.on('recieve_message', function (data) {
+        console.log(data);
+        var newElement= document.createElement('div')
+        newElement.innerHTML= '<i>'+data.username+'['+data.sent_at+']:&nbsp; </i> '+data.message; 
+        document.getElementById('messages').appendChild(newElement);
+    });    
+
+
+    
+    socket.on('join_room_announ', function(data){
+        console.log(data);
+    //     var newElement= document.createElement('div')
+    //     newElement.innerHTML= '<i>'+data.username+'</i> is online'; 
+    //     document.getElementById('messages').appendChild(newElement);
+    });
+
+</script>    
+</body>
+</html>

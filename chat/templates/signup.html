@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p style="background-color: white"> <font color="black"><b>Signup</b></font></p>
+    <form style="background-color:lightgrey" method="POST" action="">
+    {{form.hidden_tag()}}
+        {{form.username.label()}}<br>
+        {%if form.username.errors%}
+        {{form.username()}}<br>
+            {%for error in form.username.errors%}
+                <span>{{error}}</span><br>
+            {%endfor%}
+        {%else%}
+            {{form.username()}}<br>
+        {%endif%}
+        {{form.submit()}}
+    </form>
+    </form>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{%extends "layout.html" %}
+{% block content%}
+    {%with messages = get_flashed_messages(with_categories=true)%}
+            {%if messages%}
+                {%for category, message in messages%}
+                   <div class="{{category}}">
+                      {{message}}
+                    </div>
+                {%endfor%}
+            {%endif%}
+    {%endwith%}
+    {% if current_user.is_authenticated %}    
+        <p>{{current_user.username}}, you have {{len_rooms}} room(s)</p>
+        {%for user_room in user_rooms%}
+            <div><a href="{{url_for('chatroom', room_id=user_room.id)}}">{{user_room.roomname}}</a></div>
+        {%endfor%}
+    {%else%}
+        <p>Login/Register to access your rooms </p>
+    {%endif%}
+    <br>
+    <br>
+    <a href="{{url_for('join')}}">join room</a>OR <a href="{{url_for('create')}}">create room</a>
+{%endblock%}

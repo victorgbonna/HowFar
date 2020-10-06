@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+        {%with messages = get_flashed_messages(with_categories=true)%}
+            {%if messages%}
+                {%for category, message in messages%}
+                   <div class="{{category}}">
+                      {{message}}
+                    </div>
+                {%endfor%}
+            {%endif%}
+        {%endwith%}
+    <p style="background-color: white"> <font color="black"><b>Join Room</b></font></p>
+    <form style="background-color:lightgrey" method="POST" action="">
+    {{form.hidden_tag()}}
+        {{form.roomcode.label()}}<br>
+        {%if form.roomcode.errors%}
+        {{form.roomcode()}}<br>
+            {%for error in form.roomcode.errors%}
+                <span>{{error}}</span><br>
+            {%endfor%}
+        {%else%}
+            {{form.roomcode()}}<br>
+        {%endif%}
+        {{form.submit()}}
+   </form>
+</body>
+</html>

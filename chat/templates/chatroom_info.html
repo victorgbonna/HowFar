@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat</title>
+</head>
+<body>
+    {%with messages = get_flashed_messages(with_categories=true)%}
+            {%if messages%}
+                {%for category, message in messages%}
+                   <div class="{{category}}">
+                      {{message}}
+                    </div>
+                {%endfor%}
+            {%endif%}
+        {%endwith%}
+    <h1>{{roomObj.roomname}}</h1>
+    <p>created by {{roomObj.created_by}} at {{roomObj.created_at}}</p>
+    members of the group
+    <ul>
+        {%for member in roomObj.members%}
+            {%if member.username==roomObj.created_by%}
+                <li>{{member.username}}  <kbd style="background-color: green; border-radius: 20px;"> Creator</kbd></li>
+            {%else%}    
+                <li>{{member.username}}</li>
+            {%endif%}
+        {%endfor%}
+
+        <a href="{{url_for('chatroom_info_update', room_id=roomObj.id)}}">Update room</a>
+    </ul>
+</body>
+</html>
